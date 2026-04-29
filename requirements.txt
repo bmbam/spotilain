@@ -1,0 +1,8 @@
+discord.py
+spotipy
+requests
+pillow
+python-dotenv
+fastapi
+uvicorn
+psycopg2-binary
