@@ -127,7 +127,7 @@ async def login(ctx):
     link = f"{os.getenv('RAILWAY_URL')}/login?user_id={ctx.author.id}"
     embed = discord.Embed(
         title="📥 Sincronización con The Wired",
-        description=f"Haz clic [aquí]({link}) para autorizar tu acceso.",
+        description=f"Haz clic [aquí](https://{link}) para autorizar tu acceso.",
         color=0x9b59b6
     )
     try:
