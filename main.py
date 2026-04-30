@@ -3,6 +3,9 @@ from fastapi.responses import RedirectResponse
 from database import save_user_token, init_db
 import os
 import urllib.parse
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+import json
 
 app = FastAPI()
 
@@ -20,9 +23,8 @@ async def login(user_id: str):
     redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
     
     if not client_id or not redirect_uri:
-        return {"error": "Faltan variables de entorno (CLIENT_ID o REDIRECT_URI)"}
+        return {"error": "Faltan variables de entorno en Railway"}
 
-    # Permisos para ver qué escucha y su top (ideal para los Widgets V2)
     scope = "user-read-currently-playing user-top-read"
     
     params = {
@@ -34,14 +36,28 @@ async def login(user_id: str):
     }
     
     spotify_url = f"https://accounts.spotify.com/authorize?{urllib.parse.urlencode(params)}"
-    
     return RedirectResponse(spotify_url)
 
 @app.get("/callback")
 async def callback(code: str, state: str):
-    # 'state' contiene el discord_id que enviamos en /login
     try:
-        save_user_token(int(state), code)
-        return {"message": "Sincronización exitosa con la Wired. Ya puedes cerrar esta pestaña."}
+        # 1. Configuramos el manejador para intercambiar el código por el TOKEN REAL
+        sp_oauth = SpotifyOAuth(
+            client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+            client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+            redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI")
+        )
+        
+        # 2. Obtenemos el diccionario completo del token (access, refresh, expires_at)
+        token_info = sp_oauth.get_access_token(code)
+        
+        # 3. Guardamos el JSON completo como texto en la base de datos
+        # Esto permite que el bot use json.loads() y refresque el token solo
+        save_user_token(int(state), json.dumps(token_info))
+        
+        return {
+            "message": "Sincronización exitosa con la Wired.",
+            "detalle": "El flujo de datos ha sido vinculado a tu ID de Discord."
+        }
     except Exception as e:
-        return {"error": f"Error al guardar en base de datos: {str(e)}"}
+        return {"error": f"Error en la conexión con la Wired: {str(e)}"}
