@@ -16,7 +16,7 @@ load_dotenv()
 intents = discord.Intents.all()
 # Configura estos IDs según tu servidor
 TU_ID = 919008060339527700  # Tu ID de Discord
-CANAL_WIRED_ID = 1411590530546012203 # ID del canal de monitoreo
+CANAL_WIRED_ID = 964595061335670815 # ID del canal de monitoreo
 
 bot = commands.Bot(command_prefix="{", intents=intents, owner_id=TU_ID)
 last_played = {}
