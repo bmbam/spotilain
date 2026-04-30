@@ -25,7 +25,7 @@ async def login(user_id: str):
     if not client_id or not redirect_uri:
         return {"error": "Faltan variables de entorno en Railway"}
 
-    scope = "user-read-currently-playing user-top-read"
+    scope = "user-read-currently-playing user-read-playback-state user-top-read"
     
     params = {
         "client_id": client_id,
